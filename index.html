@@ -10,6 +10,7 @@
   <button id="listar_1">Listar Ítem</button>
   <button id="actualizarItem">actualizar Ítem</button>
   <button id="crearItem">Crear Ítem</button>
+  <button id="deleteItem">Eliminar Ítem</button>
   <div id="resultado" style="white-space: pre-wrap; margin-top: 20px;"></div>
 
   <script>
@@ -80,12 +81,31 @@
         }
     }
 
+    async function deleteItem() {
+        try {
+        const response = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+            query: "mutation { deleteItem(itemId: 1)}"
+            })
+        })
+        const data = await response.json();
+        document.getElementById("resultado").textContent = JSON.stringify(data, null, 4);
+        }
+        catch (error) {
+        console.error("Error:", error);
+        }
+    }
+
     document.getElementById("listar_1").addEventListener("click", listarItem);
     document.getElementById("listar").addEventListener("click", listarItems);
     document.getElementById("actualizarItem").addEventListener("click", actualizarItem);
     document.getElementById("crearItem").addEventListener("click", crearItem);
+    document.getElementById("deleteItem").addEventListener("click", deleteItem);
   </script>
 </body>
+</html>
 </html>
 
 <!-- Comandos source .venv/bin/activate - uvicorn main:app --reload -->
