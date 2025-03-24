@@ -1,59 +1,39 @@
-from typing import Union
-from fastapi import FastAPI, Depends, HTTPException
-from pydantic import BaseModel
-from sqlalchemy.orm import Session
-from database import SessionLocal, init_db, ItemDB
+from fastapi import FastAPI
+from strawberry.fastapi import GraphQLRouter
+from database import init_db, get_db
+from isgraphql.schema import schema  # Importa el esquema que definiste en graphql/schema.py
+from fastapi.middleware.cors import CORSMiddleware
 
+# Define los orígenes permitidos (ajusta según necesites)
+origins = [
+    "http://localhost", 
+    "http://127.0.0.1",
+    "http://127.0.0.1:5500"
+]
+
+# Inicializa la base de datos (crea las tablas si es necesario)
 init_db()
 
 app = FastAPI()
 
-class Item(BaseModel):
-    name: str
-    price: float
-    is_offer: Union[bool, None] = None
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # Permite estos orígenes
+    allow_credentials=True,
+    allow_methods=["*"],    # Permite todos los métodos
+    allow_headers=["*"],    # Permite todos los headers
+)
+# Función para inyectar el contexto con la sesión de la DB
+def get_context():
+    return {"db": next(get_db())}
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# Configurar el router de GraphQL en FastAPI
+graphql_app = GraphQLRouter(schema, context_getter=get_context)
+app.include_router(graphql_app, prefix="/graphql")
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, db: Session = Depends(get_db)):
-    item = db.query(ItemDB).filter(ItemDB.id == item_id).first()
-    if not item:
-        raise HTTPException(status_code=404, detail="Item not found")
-    return item
+# Agregar una ruta en la raíz para confirmar que el servidor está funcionando
+@app.get("/")
+def read_root():
+    return {"message": "Bienvenido a la API GraphQL. Usa /graphql para interactuar."}
 
-@app.post("/items")
-def create_item(item: Item, db: Session = Depends(get_db)):
-    db_item = ItemDB(name=item.name, price=item.price, is_offer=item.is_offer)
-    db.add(db_item)
-    db.commit()
-    db.refresh(db_item)
-    return db_item
 
-@app.put("/items/{item_id}")
-def update_item(item_id: int, item: Item, db: Session = Depends(get_db)):
-    db_item = db.query(ItemDB).filter(ItemDB.id == item_id).first()
-    if not db_item:
-        raise HTTPException(status_code=404, detail="Item not found")
-    
-    db_item.name = item.name
-    db_item.price = item.price
-    db_item.is_offer = item.is_offer
-    db.commit()
-    db.refresh(db_item)
-    return db_item
-
-@app.delete("/items/{item_id}")
-def delete_item(item_id: int, db: Session = Depends(get_db)):
-    db_item = db.query(ItemDB).filter(ItemDB.id == item_id).first()
-    if not db_item:
-        raise HTTPException(status_code=404, detail="Item not found")
-
-    db.delete(db_item)
-    db.commit()
-    return {f"message": f"Item {item_id} deleted"}
