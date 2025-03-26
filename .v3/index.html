@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWT con GraphQL</title>
+</head>
+<body>
+    <h2>Registro</h2>
+    <input type="text" id="registerUser" placeholder="Usuario">
+    <input type="password" id="registerPass" placeholder="Contraseña">
+    <button onclick="register()">Registrar</button>
+    
+    <h2>Iniciar Sesión</h2>
+    <input type="text" id="loginUser" placeholder="Usuario">
+    <input type="password" id="loginPass" placeholder="Contraseña">
+    <button onclick="login()">Ingresar</button>
+    
+    <h2>Datos Protegidos</h2>
+    <button onclick="getSecureData()">Obtener Datos</button>
+    <p id="secureData"></p>
+
+    <script>
+        const API_URL = "http://localhost:8000/graphql";
+        let token = "";
+        
+        async function register() {
+            const username = document.getElementById("registerUser").value;
+            const password = document.getElementById("registerPass").value;
+            
+            const query = `mutation { register(username: "${username}", password: "${password}") }`;
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ query })
+            });
+
+            //limpiar inputs
+            document.getElementById("registerUser").value = "";
+            document.getElementById("registerPass").value = "";
+
+            const data = await response.json();
+            alert(data.data.register);
+        }
+        
+        async function login() {
+            const username = document.getElementById("loginUser").value;
+            const password = document.getElementById("loginPass").value;
+            
+            const query = `mutation { login(username: "${username}", password: "${password}") }`;
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ query })
+            });
+
+            //Limpiar inputs
+            document.getElementById("loginUser").value = "";
+            document.getElementById("loginPass").value = "";
+
+            const data = await response.json();
+            token = data.data.login;
+            alert("Token recibido: " + token);
+
+            // Guardar el token en el almacenamiento local
+            localStorage.setItem('token', token);
+
+            
+        }
+        
+        async function getSecureData() {
+            const query = `query { secureData }`;
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + token
+                },
+                body: JSON.stringify({ query })
+            });
+            const data = await response.json();
+            console.log(data.data)
+            document.getElementById("secureData").innerText = (data.data) ? data.data.secureData : "No se encontraron datos";
+        }
+
+        // Recuperar el token del almacenamiento local al cargar la página
+        window.onload = function() {
+            token = localStorage.getItem('token');
+            if (token) {
+                alert("Token recuperado: " + token);
+            }
+        };
+    </script>
+</body>
+</html>
