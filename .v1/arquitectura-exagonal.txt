@@ -1,0 +1,19 @@
+Regla de afuera hacia a dentro 
+    Infraestructura -> Aplicación
+    Aplicación -> Dominio
+    Dominio -> Dominio
+
+DOMINIO
+    Entidades - ValueObjects
+
+APLICACION
+    Casos de uso
+
+INFRAESTRUCTURA
+    Todo lo que sea entrada y salida de la aplicacion
+    Persistencia de datos
+    Frameworks
+    Llamada a libreria externa
+
+
+    

@@ -1,0 +1,176 @@
+- Por qué se usa JWT ?
+
+1. Autentificación y autorización segura
+	Permite logear a los usuarios sin necesidad de estar enviando credenciales en cada solicitud
+	Puede contener información sobre permisos y roles (payload)
+	
+2. Autocontenido y sin estados (stateless)
+	JWT contiene todas la información necesaria para autentificar al usuario sin necesidad de guardar informacion de sesiones en memoria o base de datos
+	Funciona para aplicaciones distribuidas y microservicios
+	
+3. Seguridad y firma digital
+	Firmado con HMAC (clave secreta) para garantizar que no ha sido modificado
+	Puede incluir fecha de expiracion
+	
+4. Compatible con diferentes tecnologias
+	Funciona en frontend y backend, en diferentes dispositivos y compatibles con rest grapql
+	
+5. Eficiencia y Rendimiento
+	Es ligero al ser json y facil de procesar
+	No requiere consultas a base de datos constantemente
+
+- Para donde se usa y como se usa ?
+
+Lo usan tanto el frontend como el back end, pero lo usan de diferente forma, el backend se encarga de generar los jwt, darles fecha de expiracion y verificar que no hayan sido manipulados, asi mismo proteger las rutas que desea poniendo la validación de jwt por delantes antes de enviar los datos al usuario, el frontend envia en el encabezado los jwt para poder realizar consumir todas las demas entradas, endpoints o rutas de la api, las unicas entradas (pueden haber más) que no estan protegidas para el funcionamiento de la aplicación, vendrian a ser los endpoint de registro y login, cuando te logees el servidor le enviara el jwt y este lo almacenara en localstore, sessionStorage u Cookies dependiendo y se enviara junto a las llamadas de apis internas que se sabe que necesitan esta autentificacion
+
+
+- Si hay herramientas mejores
+
+Hay diferentes herramientas pero con propositos diferentes, dependiendo de lo que se quiere puede utilizarse uno u otro
+
+Para APIs públicas: OAuth 2.0
+✅ Ventajas:
+    Recomendado para APIs abiertas y microservicios.
+    Soporta "delegación de acceso" (permite acceso a terceros sin exponer credenciales).
+    Compatible con estándares como OpenID Connect.
+
+❌ Desventajas:
+    Más complejo que JWT puro.
+    Si se usan tokens de larga duración, se deben manejar bien los riesgos de exposición.
+
+Para sistemas internos simples: API Keys
+✅ Ventajas:
+    Sencillo de implementar.
+    Fácil de revocar y rotar.
+❌ Desventajas:
+    Menos seguro (si se filtra la clave, cualquiera puede usarla).
+    No maneja usuarios directamente, solo acceso a servicios.
+
+Para máxima seguridad: mTLS
+✅ Ventajas:
+    Seguridad muy alta.
+    Útil en entornos altamente regulados.
+❌ Desventajas:
+    Más complejo de gestionar.
+    No ideal para aplicaciones web de usuarios comunes.
+
+Para autenticación tradicional en sitios web: Cookies + Sessions
+✅ Ventajas:
+    Más seguro contra ataques como token theft, ya que los tokens no se almacenan en el cliente.
+    Permite invalidar sesiones en cualquier momento desde el servidor.
+❌ Desventajas:
+    No es escalable para sistemas distribuidos sin un almacenamiento centralizado.
+    Mayor carga en el servidor al gestionar sesiones activas.
+
+Para JWT mejorado: Paseto
+✅ Ventajas:
+    No usa firmas RS256, evitando vulnerabilidades.
+    Evita errores comunes de implementación en JWT.
+❌ Desventajas:
+    Menos soporte en bibliotecas y frameworks comparado con JWT.
+
+- Implementacion 
+
+1. El usuario inicia sesion con usuario y contraseña (no necestia enviar el jwt)
+2. El backend recupera esta solicitud con una mutacion y si es correcta le devuelve al usuario un jwt
+3. El usuario almacena este jwt en LocalStorage → localStorage.setItem("token", jwt), SessionStorage → sessionStorage.setItem("token", jwt) o más seguro Cookies (HttpOnly) 
+4. El cliente ahora como esta guardado el token lo envia en cada solicitud que haga al backend
+5. El servidor revisa que el token sea validado y no haya expirado
+5.1 Si es valido deja al usuario acceder a la query o la mutacion
+5.2 Si no es valido devuelve un acceso denegado
+6. Una vez que el jwt se expira se puede implementar un refresh para que el usuario no tenga que volver a iniciar sesion, podrian hacer que apresca un popup que cubra toda la pestaña, o redirigirlo a otra pestaña con un limite de 5 minutos, para que si le den a continuar trabajando no se cierre y los mande al inciio de la pagina
+7. si le da a continuar, se le manda al backend una solicitud para renovar ese jwt, (supongo que se comprueba la fecha de expiracion si esta dentro del tiempo valido para la renovacion)
+
+
+
+Uso de JWT (Backend)
+
+1. Define variables
+	SECRET_KEY (clave unica utilizada para la codificacion)	
+	ALGORITHM (algoritmo de codificacion permitido)
+	ACCESS_TOKEN_EXPIRE_MINUTES (Tiempo de expiracion del token)
+	
+2. Función para crear token
+	copia la data (Esta data es la que se extrae del login, si no recibe tiempo, lo toma como none)
+	expire trae por defecto los minutos que se definieron para el tiempo de vida de jwt
+	se agrega al procedo de codificar (to_encode) el tiempo ("exp") de expiracion
+	retorna el jwt codificado con (la data, secret_key, algoritmo_permitido)
+	
+3. Se crea la mutacion de login
+	a travez de cursor se guarda la data traida despues de ejecutar la consulta
+	en la user se guarda la info
+	se valida la contraseña para detener o continuar el proceso
+	si se cpntinua se crea el token enviado a la funcion (paso 2) el objeto literal ({"username": user["username"]} donde user es la variable que repesenta al usuario que se esta registrando)
+	
+4. En el router (donde pasa las solicitudes antes de ir al squema) se coloca que primero se pasara por el context_dependecncy donde se asiganar a user el return de get_current_user para luego si no hay errores retornar {"user": user}
+
+4.1 En get_current_user pasan 3 cosas
+	Retornan errores si no mandaron encabezado con el jwt
+	Decodifica para fijarse que no haya sido manipulado y que aun no haya expirado
+	Si se certifica eso se retorna en un diccionario {"username","valor extraido"} luego esto se asigna a info.context para ser usado por otras peticiones 
+	Por ejemplo secure_data lo usa en info.context["user"]
+	
+5. Para que una funcion implemente la seguridad de este jwt solo en necesario que tenga una comprovacion de info.context["user"] y si muestra que no hay un usuario en el contexto o no es valido entonces da error
+
+
+
+
+
+
+
+
+
+
+
+- Entorno
+
+annotated-types==0.7.0
+anyio==4.9.0
+bcrypt==4.3.0
+cached-property==2.0.1
+certifi==2025.1.31
+click==8.1.8
+dnspython==2.7.0
+email_validator==2.2.0
+fastapi==0.115.12
+fastapi-cli==0.0.7
+graphql-core==3.2.6
+greenlet==3.1.1
+h11==0.14.0
+httpcore==1.0.7
+httptools==0.6.4
+httpx==0.28.1
+idna==3.10
+inflection==0.5.1
+Jinja2==3.1.6
+markdown-it-py==3.0.0
+MarkupSafe==3.0.2
+mdurl==0.1.2
+mypy-extensions==1.0.0
+packaging==24.2
+passlib==1.7.4
+psycopg2==2.9.10
+pydantic==2.10.6
+pydantic_core==2.27.2
+Pygments==2.19.1
+PyJWT==2.10.1
+python-dateutil==2.9.0.post0
+python-dotenv==1.1.0
+python-multipart==0.0.20
+PyYAML==6.0.2
+rich==13.9.4
+rich-toolkit==0.13.2
+shellingham==1.5.4
+six==1.17.0
+sniffio==1.3.1
+SQLAlchemy==2.0.39
+sqlalchemy-orm==1.2.10
+starlette==0.46.1
+strawberry-graphql==0.262.5
+typer==0.15.2
+typing-inspect==0.9.0
+typing_extensions==4.12.2
+uvicorn==0.34.0
+uvloop==0.21.0
+watchfiles==1.0.4
+websockets==15.0.1

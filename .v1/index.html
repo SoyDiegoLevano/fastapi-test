@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Consumir API GraphQL</title>
+</head>
+<body>
+  <h1>Consumir API GraphQL</h1>
+  <div>
+    <h2>Listar Ítems</h2>
+    <p>Consulta para obtener todos los ítems.</p>
+    <pre>
+      <code>
+        query {
+          listItems {
+            id
+            name
+            price
+            isOffer
+          }
+        }
+      </code>
+  </div>
+  <button id="listar">Listar Ítems</button>
+  <button id="listar_1">Listar Ítem</button>
+  <button id="actualizarItem">actualizar Ítem</button>
+  <button id="crearItem">Crear Ítem</button>
+  <button id="deleteItem">Eliminar Ítem</button>
+  <div id="resultado" style="white-space: pre-wrap; margin-top: 20px;"></div>
+
+  <script>
+    const endpoint = "http://localhost:8000/graphql";
+
+    async function listarItems() {
+        try {
+        const response = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+            query: "query { listItems { id name price isOffer } }"
+            })
+        });
+        const data = await response.json();
+        document.getElementById("resultado").textContent = JSON.stringify(data, null, 4);
+        } catch (error) {
+        console.error("Error:", error);
+        }
+    }
+
+    async function listarItem() {
+        try {
+        const response = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+            query: "query { getItem (itemId: 12) { id name price isOffer } }"
+            })
+        });
+        const data = await response.json();
+        document.getElementById("resultado").textContent = JSON.stringify(data, null, 4);
+        } catch (error) {
+        console.error("Error:", error);
+        }
+    }
+
+    async function actualizarItem() {
+        try {
+        const response = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+            query: "mutation { updateItem(itemId: 2, name: \"Ítem Actualizado\", price: 12.50, isOffer: true) { id name price } }"
+            })
+        });
+        const data = await response.json();
+        document.getElementById("resultado").textContent = JSON.stringify(data, null, 4);
+        } catch (error) {
+        console.error("Error:", error);
+        }
+    }
+
+    async function crearItem() {
+        try {
+        const response = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+            query: "mutation { createItem(name: \"Nuevo Ítem\", price: 9.99) { id name } }"
+            })
+        })
+        const data = await response.json();
+        document.getElementById("resultado").textContent = JSON.stringify(data, null, 4);
+        }
+        catch (error) {
+        console.error("Error:", error);
+        }
+    }
+
+    async function deleteItem() {
+        try {
+        const response = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+            query: "mutation { deleteItem(itemId: 1)}"
+            })
+        })
+        const data = await response.json();
+        document.getElementById("resultado").textContent = JSON.stringify(data, null, 4);
+        }
+        catch (error) {
+        console.error("Error:", error);
+        }
+    }
+
+    document.getElementById("listar_1").addEventListener("click", listarItem);
+    document.getElementById("listar").addEventListener("click", listarItems);
+    document.getElementById("actualizarItem").addEventListener("click", actualizarItem);
+    document.getElementById("crearItem").addEventListener("click", crearItem);
+    document.getElementById("deleteItem").addEventListener("click", deleteItem);
+  </script>
+</body>
+</html>
+</html>
+
+<!-- Comandos source .venv/bin/activate - uvicorn main:app --reload -->

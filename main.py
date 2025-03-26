@@ -1,39 +1,44 @@
-from fastapi import FastAPI
-from strawberry.fastapi import GraphQLRouter
-from database import init_db, get_db
-from isgraphql.schema import schema  # Importa el esquema que definiste en graphql/schema.py
+# main.py
+
+from fastapi import FastAPI, Depends, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
+from strawberry.fastapi import GraphQLRouter
+from typing import Optional
+import jwt
+from infrastructure.config import SECRET_KEY, ALGORITHM
+from User.Infrastructure.GraphQL.schema import schema  # Importa el schema de User
 
-# Define los orígenes permitidos (ajusta según necesites)
-origins = [
-    "http://localhost", 
-    "http://127.0.0.1",
-    "http://127.0.0.1:5500"
-]
+def get_current_user(authorization: Optional[str] = Header(None)) -> Optional[dict]:
+    # Si no se envía token, retorna None en lugar de lanzar un error
+    if not authorization:
+        return None
+    parts = authorization.split()
+    if len(parts) != 2 or parts[0].lower() != "bearer":
+        return None
+    token = parts[1]
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return {"username": payload["username"]}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expirado")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Token inválido")
 
-# Inicializa la base de datos (crea las tablas si es necesario)
-init_db()
+
+def context_dependency(user=Depends(get_current_user)):
+    return {"user": user}
 
 app = FastAPI()
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # Permite estos orígenes
+    allow_origins=["http://127.0.0.1:5500"],
     allow_credentials=True,
-    allow_methods=["*"],    # Permite todos los métodos
-    allow_headers=["*"],    # Permite todos los headers
+    allow_methods=["*"],
+    allow_headers=["*"]
 )
-# Función para inyectar el contexto con la sesión de la DB
-def get_context():
-    return {"db": next(get_db())}
 
-# Configurar el router de GraphQL en FastAPI
-graphql_app = GraphQLRouter(schema, context_getter=get_context)
-app.include_router(graphql_app, prefix="/graphql")
+app.include_router(GraphQLRouter(schema, context_getter=context_dependency), prefix="/graphql")
 
-# Agregar una ruta en la raíz para confirmar que el servidor está funcionando
-@app.get("/")
-def read_root():
-    return {"message": "Bienvenido a la API GraphQL. Usa /graphql para interactuar."}
-
-
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
