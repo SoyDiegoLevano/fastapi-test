@@ -7,14 +7,18 @@ class Product(BaseModel):
     name: str
     price: float
 
-    @classmethod
-    def from_orm(cls, orm_model) -> "Product":
-        """Convierte un modelo de ORM (SQLAlchemy) a la entidad de dominio."""
-        return cls(
-            id=orm_model.id,
-            name=orm_model.name,
-            price=orm_model.price
-        )
+    class Config:
+        from_attributes = True
+
+#    @classmethod
+#    def from_orm(cls, orm_model) -> "Product":
+#        """Convierte un modelo de ORM (SQLAlchemy) a la entidad de dominio."""
+#       return cls(
+#            id=orm_model.id,
+#            name=orm_model.name,
+#            price=orm_model.price
+#        )
+#   Solo crearlo si es necesario un proceso de algun atributo antes de guardarlo
 
 # DTO para creación
 class ProductCreateDTO(BaseModel):
@@ -23,5 +27,6 @@ class ProductCreateDTO(BaseModel):
 
 # DTO para actualización (opcional)
 class ProductUpdateDTO(BaseModel):
+    id: int
     name: str
     price: float

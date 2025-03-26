@@ -1,0 +1,186 @@
+{
+  "main": {
+    "id": "25bf56233de648af",
+    "type": "split",
+    "children": [
+      {
+        "id": "15f306ffd381d719",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "e04804667821093e",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Prueba v1.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Prueba v1"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "146bd85079af0768",
+    "type": "split",
+    "children": [
+      {
+        "id": "2449ddcd248fff15",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "869f6bf0d4093a3c",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Explorador de archivos"
+            }
+          },
+          {
+            "id": "24a19133ddfa8816",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Buscar"
+            }
+          },
+          {
+            "id": "aec2f41ddfd2896a",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Marcadores"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 200
+  },
+  "right": {
+    "id": "032dfd8c9dff83ac",
+    "type": "split",
+    "children": [
+      {
+        "id": "29116d29c665adae",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "f23ad28b2371fd79",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Prueba v1.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Enlaces entrantes de Prueba v1"
+            }
+          },
+          {
+            "id": "59e70afc3d7128cf",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Prueba v1.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Enlaces salientes de Prueba v1"
+            }
+          },
+          {
+            "id": "773efe9ce4c59f56",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Etiquetas"
+            }
+          },
+          {
+            "id": "e3b519a2cafb071c",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Prueba v1.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Esquema de Prueba v1"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Abrir selector rápido": false,
+      "graph:Abrir vista gráfica": false,
+      "canvas:Crear nuevo lienzo": false,
+      "daily-notes:Abrir la nota de hoy": false,
+      "templates:Insertar plantilla": false,
+      "command-palette:Abrir paleta de comandos": false
+    }
+  },
+  "active": "e04804667821093e",
+  "lastOpenFiles": [
+    "Pasted image 20250326151042.png",
+    "Pasted image 20250326145445.png",
+    "Prueba v1.md",
+    "Pasted image 20250326182126.png",
+    "Pasted image 20250326181505.png",
+    "Pasted image 20250326180859.png",
+    "Pasted image 20250326180412.png",
+    "Pasted image 20250326180410.png",
+    "Pasted image 20250326174458.png",
+    "Pasted image 20250326174436.png",
+    "Pasted image 20250326174431.png",
+    "Pasted image 20250326170828.png"
+  ]
+}

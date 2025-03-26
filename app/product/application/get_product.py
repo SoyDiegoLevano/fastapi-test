@@ -12,3 +12,4 @@ class GetProduct:
         """
         product = await self.product_repository.get_by_id(product_id)
         return product
+ 

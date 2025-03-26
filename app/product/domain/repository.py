@@ -6,7 +6,6 @@ from .entities import Product, ProductCreateDTO
 class ProductRepository(ABC):
     @abstractmethod
     async def create(self, product: ProductCreateDTO) -> Product:
-        """Crea un producto en la base de datos."""
         pass
 
     @abstractmethod
