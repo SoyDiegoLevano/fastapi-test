@@ -1,10 +1,16 @@
 # User/Infrastructure/Persistence/postgres_user_repository.py
-
+import os
+from dotenv import load_dotenv
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from typing import Optional
 from User.Domain.user import User
-from infrastructure.config import DATABASE_URL
+
+# Cargar variables de entorno
+load_dotenv()
+
+# Obtener la URL de la base de datos desde .env
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Conectar a PostgreSQL
 conn = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)

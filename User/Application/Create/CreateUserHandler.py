@@ -1,10 +1,8 @@
 # User/Application/CreateUserHandler.py
-
 from passlib.context import CryptContext
 from User.Domain.user import User
-from infrastructure.config import ACCESS_TOKEN_EXPIRE_MINUTES
-# Nota: Se espera que el repositorio se inyecte (implementado en Infrastructure)
 
+# Nota: Se espera que el repositorio se inyecte (implementado en Infrastructure)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def get_password_hash(password: str) -> str:

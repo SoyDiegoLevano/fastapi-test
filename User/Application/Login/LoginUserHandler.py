@@ -1,11 +1,21 @@
 # User/Application/LoginUserHandler.py
-
+import os
+from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 import jwt
 from passlib.context import CryptContext
-from infrastructure.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from User.Domain.user import User
+
+
+# Cargar variables de entorno
+load_dotenv()
+
+# Obtener la URL de la base de datos desde .env
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
+
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

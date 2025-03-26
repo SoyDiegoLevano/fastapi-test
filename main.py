@@ -1,12 +1,19 @@
 # main.py
-
+import os
+from dotenv import load_dotenv
 from fastapi import FastAPI, Depends, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 from strawberry.fastapi import GraphQLRouter
 from typing import Optional
 import jwt
-from infrastructure.config import SECRET_KEY, ALGORITHM
 from User.Infrastructure.GraphQL.schema import schema  # Importa el schema de User
+
+#importar env
+load_dotenv()
+
+##Secret_key y Algorithm
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
 
 def get_current_user(authorization: Optional[str] = Header(None)) -> Optional[dict]:
     # Si no se envía token, retorna None en lugar de lanzar un error
