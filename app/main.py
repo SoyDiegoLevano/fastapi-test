@@ -1,12 +1,11 @@
 # app/main.py
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from strawberry.fastapi import GraphQLRouter
 from app.graphql.schema import schema
 
 app = FastAPI()
 
-# Creamos un router GraphQL
 graphql_app = GraphQLRouter(schema)
 
 # Montamos el endpoint /graphql

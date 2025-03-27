@@ -125,8 +125,159 @@ La estructura de carpetas se ve de esta manera, actualmente contiene solo una ta
 - las demás opciones que se aplican en las quieries se aplican aqui a las mutaciones
 - la unica diferenca es que en las mutaciones se usan para hacer modificaciones como eliminar, editar, crear
 ![[Pasted image 20250326182126.png]]
+##### 5.5 schemas
+- Combina las peticiones de queries y mutations en un solo squema
+- Es el punto de entrada de GraphQL
+- Permite seguir extendiendo la aplicación
+- Entre este tenemos dos schemas en la aplicación, uno para manejar una entidad y luego un general para manejar todas las entidades
+	![[Pasted image 20250327091555.png]]
+#### 6. Despliegue
+##### 6.1 main.py
+- Inicializa la aplicación con FastAPI
+- Monta el router GraphQL para exponer el endpoint /graphql
+- Se designa el puerto al cual ira dirigido el despliegue de la API
+
+#### ¿Cómo es el proceso de escucha y proceso de la API para enviar una respuesta?
+
+##### 1.  El cliente envía una solicitud 
+
+``` json
+mutation {
+  createProduct(productData: { name: "Smartphone", price: 599.99 }) {
+    id
+    name
+    price
+  }
+}
+```
+##### 2. Pasa al schema principal
+La petición va a /graphql y lo manda a la sección de mutaciones, al ya tenerlo mapeado cuando se declara las mutaciones, es como tener una lista de todos los métodos mutation busca el que pide el usuario y se manda la petición a ese lugar.
+
+``` python
+import strawberry
+from app.product.infrastructure.adapters.graphql.schemas import product_schema
+
+@strawberry.type
+class Query(
+product_schema.query, # Hereda de ProductQuery
+):
+
+@strawberry.type
+class Mutation(
+product_schema.mutation, # Hereda de ProductMutation
+
+):
+
+schema = strawberry.Schema(query=Query, mutation=Mutation)
+```
+##### 3. La mutación llama al Resolver 
+Se pasan los datos por los argumentos de la mutacion verificando que sean datos válidos (comparando con ProductInput en este caso)
+
+Una vez verificado se crea una variable donde su guardara el resultado que nos devuelva el resolver, la data que se le pasara al resolver sera lo enviado por el usuario (luego de ser comprobada que cumple con los requerido)
+![[Pasted image 20250327094731.png]]
+
+##### 4.
+El resolver vuelve a verificar el input de datos
+Trae una session para interactuar con la base de datos
+Se guarda en **product_repor** una instancia de SQLAlchemy con una session a la base de datos (ya que al no utilizar ningun metodo los argumentos van al init )
+![[Pasted image 20250327095904.png]]
+##### 5.
+Luego en **use_case** se guarda la instancia de CreateProduct que primero verifica que la instancia de SQLAlchemy cumpla con lo definido en el repositorio, definido en product_repository
+![[Pasted image 20250327100359.png]]
+
+##### 5.
+Luego de regreso con el resolver este guarda lo que nos retorna la instancia de CreateProduct y al ejecutar .execute (primero nos filtra la entrada de datos que debe ser ProductCreateDTO que anteriormente fue filtrada para que fuera del tipo input el cual deberia mantener el mismo orden que los DTO , finalmente el resolver retorna lo ejecutado por la instancia de SQLAlchemy
+![[Pasted image 20250327100712.png]]
+![[Pasted image 20250327100654.png]]
+##### 6.
+Cuando la mutación recibe la respuesta del resolver, lo retorna luego de pasarlo por el método "from_entity" de **ProductResponse**
+![[Pasted image 20250327100842.png]]
+
+##### 7.
+Este método nos permite filtrar la información que va a llegar al usuario utilizando el metodo de la clase ProductResponse
+1. Filtra la entrada, la data entrante debe estar en formato ProductEntity
+2. Retorna la clase ProductResponse y asigna los datos a los atributos correspondientes
+![[Pasted image 20250327101314.png]]
+![[Pasted image 20250327102448.png]]
+
+##### 8. Y finalmente el servidor devuelve la respuesta (ProductReponse)
+
+![[Pasted image 20250327102808.png]]
+
+#### ¿Cómo crear una nueva entidad funcional?
+
+Crea una nueva carpeta dentro de app en este caso "user"
+
+Agrega la estructura básica para cada entidad a crear
+1. _ _ init _ _ .pi
+2. application/
+3. domain/
+	1. entities.py
+	2. repository.py
+4. infrastructure/
+	1. adapters
+		1. graphql
+			1. mutations.py
+			2. queries.py
+			3. resolvers.py
+			4. schemas.py
+			5. types.py
+		2. sqlalchemy_(entidad)_ repository.py
+	2. models
+		1. model.py
+
+![[Pasted image 20250327104546.png]]
+
+Se crea el modelo que utilizara el ORM o lo que defina tu base de datos
+![[Pasted image 20250327105707.png]]
+
+Se importa el modelo en db_config y se agrega al (sync_engine)
+![[Pasted image 20250327104831.png]]
+Se crean los archivos de crud básico en application de la entidad
+![[Pasted image 20250327104852.png]]
+
+Crear el dominio empezando por las entities con las que se comunicara la aplicación
+
+![[Pasted image 20250327112624.png]]
+Crear el repository que definirá las entradas a la aplicación
+
+![[Pasted image 20250327112635.png]]
+
+Se definen los métodos crud en application 
+
+![[Pasted image 20250327113826.png]]
+![[Pasted image 20250327113839.png]]
+
+Se crea el conector con la base de datos en este caso sqlachemy_user_repository
+![[Pasted image 20250327115833.png]]
 
 
+Una vez se crearon todos los métodos se pasa a crear los tipos para respuesta y de ingreso
+![[Pasted image 20250327120455.png]]
+
+Se crean los resolvers 
+![[Pasted image 20250327122507.png]]
+Se podría decir que sigue el patrón de repositorio anteriormente creado con los mismos métodos para su utilización
+
+Se crean las queries y las mutaciones
+
+
+Se crea el schema de la entidad
+![[Pasted image 20250327123050.png]]
+Se añade al schema principal
+
+
+
+para evitar problemas los nombres de los metodos de 
+Repository
+SQLAlchemy 
+Resolvers
+
+Sean los mismo (aunque solo Repository y SQLAlchemy estan "obligados" a tener los mismos metodos)
+
+Delete debe devolver true o false
+
+alembic
 
 
 ### Notas adicionales
