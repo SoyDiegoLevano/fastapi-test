@@ -2,6 +2,7 @@
 from pydantic import BaseModel
 
 # Entidad de dominio
+
 class Product(BaseModel):
     id: int
     name: str
@@ -26,7 +27,7 @@ class ProductCreateDTO(BaseModel):
     price: float
 
 # DTO para actualización (opcional)
-class ProductUpdateDTO(BaseModel):
-    id: int
-    name: str
-    price: float
+#class ProductUpdateDTO(BaseModel):
+#    id: int
+#    name: str
+#    price: float

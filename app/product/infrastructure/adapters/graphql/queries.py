@@ -6,9 +6,9 @@ from app.product.infrastructure.adapters.graphql.types import ProductResponse
 @strawberry.type
 class Query:
     @strawberry.field
-    async def product(self, id: int) -> ProductResponse:
+    async def product(self, product_id: int) -> ProductResponse:
         """
         Query para obtener un producto por su ID.
         """
-        product_entity = await ProductResolver.get_product_by_id(id)
+        product_entity = await ProductResolver.get_product_by_id(product_id)
         return ProductResponse.from_entity(product_entity)
