@@ -1,16 +1,13 @@
  # app/user/infrastructure/models/model.py
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
 from passlib.context import CryptContext
-
-# Creamos la clase base para los modelos de SQLAlchemy
-Base = declarative_base()
+from app.infrastructure.db.base import Base 
 
 # Configuración de passlib para encriptar contraseñas usando bcrypt
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class UserModel(Base):
-    __tablename__ = "users"
+    __tablename__ = "user"
 
     user_id = Column(Integer, primary_key=True, index=True)
     username = Column(String, nullable=False, unique=True)

@@ -1,5 +1,5 @@
 # app/infrastructure/db/db_config.py
-import os
+import os 
 from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
@@ -9,9 +9,10 @@ from sqlalchemy import create_engine
 # Importamos el "Base" de nuestro modelo (puedes importar más bases si tienes varias)
 from app.product.infrastructure.models.model import Base as ProductBase
 from app.user.infrastructure.models.model import Base as UserBase
+
 load_dotenv()
 
-DB_NAME = os.getenv("DATABASE_NAME", "my_database")
+DB_NAME = os.getenv("DATABASE_NAME", "bd-test")
 DB_USER = os.getenv("DATABASE_USER", "postgres")
 DB_PASSWORD = os.getenv("DATABASE_PASSWORD", "postgres")
 DB_HOST = os.getenv("DATABASE_HOST", "localhost")
@@ -30,6 +31,7 @@ if not database_exists(sync_engine.url):
 # Crear las tablas si no existen (en este caso, las de ProductBase)
 ProductBase.metadata.create_all(sync_engine)
 UserBase.metadata.create_all(sync_engine)
+
 
 # 2. Creamos el engine asíncrono (que sí se usará en la aplicación)
 async_engine = create_async_engine(ASYNC_DATABASE_URL, echo=True, future=True)
