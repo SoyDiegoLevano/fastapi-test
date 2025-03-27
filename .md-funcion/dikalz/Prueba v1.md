@@ -313,3 +313,20 @@ Cuando uses CreateProduct debes pasarle un objeto que cumpla con el contrato def
 Explicame cronolicamente 2 cosas 
 1. Como es el proceso por donde pasa la data, como va moviendose de un archivo a otro de capa a capa, explicame de que manera va interactuando con lo archivos, puedes mkostrarme codigo para facilitar la compresión y usar ejemplos o comparaciones
 2. Explicarme cronologicamente como podria crear nuevos modulos (entidades / tablas) que agregaria al proyecto, en este caso puedes usar usuario sin necesidad de relacionarlo con productos, y cual seria el paso a paso para poder desarrollar un nuevo modulo sin afectar toda la logica
+
+class CustomerModel(Base):
+    tablename = 'customers'
+
+id = Column(Integer, primary_key=True, index=True)
+customer_type = Column(String, index=True)
+name = Column(String, index=True)
+companyName = Column(String, unique=True, index=True)        # Para clientes empresa
+identityNumber = Column(String, nullable=True)  # Para clientes de tipo persona
+email = Column(String, unique=True)
+taxId = Column(String, nullable=True)                       # Solo para compañías
+phone = Column(String, unique=True)
+address = Column(String)
+created_at = Column(DateTime, default=func.now())
+updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+orders = relationship("OrderModel", back_populates="customer")
+representatives = relationship("RepresentativeModel", back_populates="customer")
